@@ -1,0 +1,285 @@
+page-interceptor.js:3 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+page-interceptor.js:3 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+console.<computed> @ page-interceptor.js:3
+warnOnce @ react-router-dom.js?v=9115b9c4:4436
+logDeprecation @ react-router-dom.js?v=9115b9c4:4439
+logV6DeprecationWarnings @ react-router-dom.js?v=9115b9c4:4442
+(anonymous) @ react-router-dom.js?v=9115b9c4:5314
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=9115b9c4:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=9115b9c4:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=9115b9c4:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=9115b9c4:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=9115b9c4:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=9115b9c4:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=9115b9c4:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=9115b9c4:19432
+commitRoot @ chunk-UPELNCPK.js?v=9115b9c4:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=9115b9c4:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18718
+workLoop @ chunk-UPELNCPK.js?v=9115b9c4:197
+flushWork @ chunk-UPELNCPK.js?v=9115b9c4:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:407
+requestHostCallback @ chunk-UPELNCPK.js?v=9115b9c4:418
+unstable_scheduleCallback @ chunk-UPELNCPK.js?v=9115b9c4:330
+scheduleCallback$1 @ chunk-UPELNCPK.js?v=9115b9c4:19826
+ensureRootIsScheduled @ chunk-UPELNCPK.js?v=9115b9c4:18652
+scheduleUpdateOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18562
+updateContainer @ chunk-UPELNCPK.js?v=9115b9c4:20776
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-UPELNCPK.js?v=9115b9c4:21116
+(anonymous) @ main.tsx:6
+page-interceptor.js:3 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+console.<computed> @ page-interceptor.js:3
+warnOnce @ react-router-dom.js?v=9115b9c4:4436
+logDeprecation @ react-router-dom.js?v=9115b9c4:4439
+logV6DeprecationWarnings @ react-router-dom.js?v=9115b9c4:4445
+(anonymous) @ react-router-dom.js?v=9115b9c4:5314
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=9115b9c4:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=9115b9c4:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=9115b9c4:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=9115b9c4:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=9115b9c4:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=9115b9c4:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=9115b9c4:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=9115b9c4:19432
+commitRoot @ chunk-UPELNCPK.js?v=9115b9c4:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=9115b9c4:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18718
+workLoop @ chunk-UPELNCPK.js?v=9115b9c4:197
+flushWork @ chunk-UPELNCPK.js?v=9115b9c4:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:407
+requestHostCallback @ chunk-UPELNCPK.js?v=9115b9c4:418
+unstable_scheduleCallback @ chunk-UPELNCPK.js?v=9115b9c4:330
+scheduleCallback$1 @ chunk-UPELNCPK.js?v=9115b9c4:19826
+ensureRootIsScheduled @ chunk-UPELNCPK.js?v=9115b9c4:18652
+scheduleUpdateOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18562
+updateContainer @ chunk-UPELNCPK.js?v=9115b9c4:20776
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-UPELNCPK.js?v=9115b9c4:21116
+(anonymous) @ main.tsx:6
+page-interceptor.js:3  GET http://localhost:8080/api/v1/notes/feed?type=recommend&page=1&page_size=20 500 (Internal Server Error)
+XMLHttpRequest.send @ page-interceptor.js:3
+dispatchXhrRequest @ axios.js?v=9115b9c4:1809
+xhr @ axios.js?v=9115b9c4:1674
+dispatchRequest @ axios.js?v=9115b9c4:2237
+Promise.then
+_request @ axios.js?v=9115b9c4:2466
+request @ axios.js?v=9115b9c4:2351
+Axios.<computed> @ axios.js?v=9115b9c4:2502
+wrap @ axios.js?v=9115b9c4:8
+(anonymous) @ request.ts:79
+(anonymous) @ note.ts:15
+queryFn @ index.tsx:50
+fetchPage @ @tanstack_react-query.js?v=9115b9c4:1847
+fetchFn @ @tanstack_react-query.js?v=9115b9c4:1871
+run @ @tanstack_react-query.js?v=9115b9c4:842
+start @ @tanstack_react-query.js?v=9115b9c4:885
+fetch @ @tanstack_react-query.js?v=9115b9c4:1196
+executeFetch_fn @ @tanstack_react-query.js?v=9115b9c4:1706
+onSubscribe @ @tanstack_react-query.js?v=9115b9c4:1397
+subscribe @ @tanstack_react-query.js?v=9115b9c4:24
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:3410
+subscribeToStore @ chunk-UPELNCPK.js?v=9115b9c4:11984
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=9115b9c4:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=9115b9c4:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=9115b9c4:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=9115b9c4:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=9115b9c4:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=9115b9c4:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=9115b9c4:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=9115b9c4:19432
+commitRoot @ chunk-UPELNCPK.js?v=9115b9c4:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=9115b9c4:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18718
+workLoop @ chunk-UPELNCPK.js?v=9115b9c4:197
+flushWork @ chunk-UPELNCPK.js?v=9115b9c4:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:407
+requestHostCallback @ chunk-UPELNCPK.js?v=9115b9c4:418
+unstable_scheduleCallback @ chunk-UPELNCPK.js?v=9115b9c4:330
+scheduleCallback$1 @ chunk-UPELNCPK.js?v=9115b9c4:19826
+ensureRootIsScheduled @ chunk-UPELNCPK.js?v=9115b9c4:18652
+scheduleUpdateOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18562
+updateContainer @ chunk-UPELNCPK.js?v=9115b9c4:20776
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-UPELNCPK.js?v=9115b9c4:21116
+(anonymous) @ main.tsx:6
+page-interceptor.js:3  GET http://localhost:8080/api/v1/notes/feed?type=recommend&page=1&page_size=20 500 (Internal Server Error)
+XMLHttpRequest.send @ page-interceptor.js:3
+dispatchXhrRequest @ axios.js?v=9115b9c4:1809
+xhr @ axios.js?v=9115b9c4:1674
+dispatchRequest @ axios.js?v=9115b9c4:2237
+Promise.then
+_request @ axios.js?v=9115b9c4:2466
+request @ axios.js?v=9115b9c4:2351
+Axios.<computed> @ axios.js?v=9115b9c4:2502
+wrap @ axios.js?v=9115b9c4:8
+(anonymous) @ request.ts:79
+(anonymous) @ note.ts:15
+queryFn @ index.tsx:50
+fetchPage @ @tanstack_react-query.js?v=9115b9c4:1847
+fetchFn @ @tanstack_react-query.js?v=9115b9c4:1871
+run @ @tanstack_react-query.js?v=9115b9c4:842
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:867
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:863
+Promise.catch
+run @ @tanstack_react-query.js?v=9115b9c4:846
+start @ @tanstack_react-query.js?v=9115b9c4:885
+fetch @ @tanstack_react-query.js?v=9115b9c4:1196
+executeFetch_fn @ @tanstack_react-query.js?v=9115b9c4:1706
+onSubscribe @ @tanstack_react-query.js?v=9115b9c4:1397
+subscribe @ @tanstack_react-query.js?v=9115b9c4:24
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:3410
+subscribeToStore @ chunk-UPELNCPK.js?v=9115b9c4:11984
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=9115b9c4:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=9115b9c4:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=9115b9c4:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=9115b9c4:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=9115b9c4:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=9115b9c4:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=9115b9c4:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=9115b9c4:19432
+commitRoot @ chunk-UPELNCPK.js?v=9115b9c4:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=9115b9c4:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=9115b9c4:18718
+workLoop @ chunk-UPELNCPK.js?v=9115b9c4:197
+flushWork @ chunk-UPELNCPK.js?v=9115b9c4:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:384
+postMessage
+schedulePerformWorkUntilDeadline @ chunk-UPELNCPK.js?v=9115b9c4:407
+requestHostCallback @ chunk-UPELNCPK.js?v=9115b9c4:418
+unstable_scheduleCallback @ chunk-UPELNCPK.js?v=9115b9c4:330
+scheduleCallback$1 @ chunk-UPELNCPK.js?v=9115b9c4:19826
+ensureRootIsScheduled @ chunk-UPELNCPK.js?v=9115b9c4:18652
+scheduleUpdateOnFiber @ chunk-UPELNCPK.js?v=9115b9c4:18562
+updateContainer @ chunk-UPELNCPK.js?v=9115b9c4:20776
+ReactDOMHydrationRoot.render.ReactDOMRoot.render @ chunk-UPELNCPK.js?v=9115b9c4:21116
+(anonymous) @ main.tsx:6
+page-interceptor.js:3  GET http://localhost:8080/api/v1/notes/feed?type=recommend&page=1&page_size=20 500 (Internal Server Error)
+XMLHttpRequest.send @ page-interceptor.js:3
+dispatchXhrRequest @ axios.js?v=9115b9c4:1809
+xhr @ axios.js?v=9115b9c4:1674
+dispatchRequest @ axios.js?v=9115b9c4:2237
+Promise.then
+_request @ axios.js?v=9115b9c4:2466
+request @ axios.js?v=9115b9c4:2351
+Axios.<computed> @ axios.js?v=9115b9c4:2502
+wrap @ axios.js?v=9115b9c4:8
+(anonymous) @ request.ts:79
+(anonymous) @ note.ts:15
+queryFn @ index.tsx:50
+fetchPage @ @tanstack_react-query.js?v=9115b9c4:1847
+fetchFn @ @tanstack_react-query.js?v=9115b9c4:1871
+run @ @tanstack_react-query.js?v=9115b9c4:842
+start @ @tanstack_react-query.js?v=9115b9c4:885
+fetch @ @tanstack_react-query.js?v=9115b9c4:1196
+executeFetch_fn @ @tanstack_react-query.js?v=9115b9c4:1706
+fetch @ @tanstack_react-query.js?v=9115b9c4:1514
+refetch @ @tanstack_react-query.js?v=9115b9c4:1504
+onFocus @ @tanstack_react-query.js?v=9115b9c4:1050
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2814
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2813
+batch @ @tanstack_react-query.js?v=9115b9c4:671
+onFocus @ @tanstack_react-query.js?v=9115b9c4:2812
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2852
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:92
+onFocus @ @tanstack_react-query.js?v=9115b9c4:91
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:78
+listener @ @tanstack_react-query.js?v=9115b9c4:49
+content-script.js:16 Uncaught Error: Extension context invalidated.
+    at ae (content-script.js:16:9036)
+    at tt (content-script.js:16:9855)
+    at content-script.js:16:9993
+ae @ content-script.js:16
+tt @ content-script.js:16
+(anonymous) @ content-script.js:16
+setTimeout
+J @ content-script.js:16
+yt @ content-script.js:16
+de @ content-script.js:16
+postMessage
+L @ page-interceptor.js:3
+setTimeout
+f @ page-interceptor.js:3
+r @ page-interceptor.js:3
+XMLHttpRequest.send
+XMLHttpRequest.send @ page-interceptor.js:3
+dispatchXhrRequest @ axios.js?v=9115b9c4:1809
+xhr @ axios.js?v=9115b9c4:1674
+dispatchRequest @ axios.js?v=9115b9c4:2237
+Promise.then
+_request @ axios.js?v=9115b9c4:2466
+request @ axios.js?v=9115b9c4:2351
+Axios.<computed> @ axios.js?v=9115b9c4:2502
+wrap @ axios.js?v=9115b9c4:8
+(anonymous) @ request.ts:79
+(anonymous) @ note.ts:15
+queryFn @ index.tsx:50
+fetchPage @ @tanstack_react-query.js?v=9115b9c4:1847
+fetchFn @ @tanstack_react-query.js?v=9115b9c4:1871
+run @ @tanstack_react-query.js?v=9115b9c4:842
+start @ @tanstack_react-query.js?v=9115b9c4:885
+fetch @ @tanstack_react-query.js?v=9115b9c4:1196
+executeFetch_fn @ @tanstack_react-query.js?v=9115b9c4:1706
+fetch @ @tanstack_react-query.js?v=9115b9c4:1514
+refetch @ @tanstack_react-query.js?v=9115b9c4:1504
+onFocus @ @tanstack_react-query.js?v=9115b9c4:1050
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2814
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2813
+batch @ @tanstack_react-query.js?v=9115b9c4:671
+onFocus @ @tanstack_react-query.js?v=9115b9c4:2812
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2852
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:92
+onFocus @ @tanstack_react-query.js?v=9115b9c4:91
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:78
+listener @ @tanstack_react-query.js?v=9115b9c4:49
+page-interceptor.js:3  GET http://localhost:8080/api/v1/notes/feed?type=recommend&page=1&page_size=20 500 (Internal Server Error)
+XMLHttpRequest.send @ page-interceptor.js:3
+dispatchXhrRequest @ axios.js?v=9115b9c4:1809
+xhr @ axios.js?v=9115b9c4:1674
+dispatchRequest @ axios.js?v=9115b9c4:2237
+Promise.then
+_request @ axios.js?v=9115b9c4:2466
+request @ axios.js?v=9115b9c4:2351
+Axios.<computed> @ axios.js?v=9115b9c4:2502
+wrap @ axios.js?v=9115b9c4:8
+(anonymous) @ request.ts:79
+(anonymous) @ note.ts:15
+queryFn @ index.tsx:50
+fetchPage @ @tanstack_react-query.js?v=9115b9c4:1847
+fetchFn @ @tanstack_react-query.js?v=9115b9c4:1871
+run @ @tanstack_react-query.js?v=9115b9c4:842
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:867
+Promise.then
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:863
+Promise.catch
+run @ @tanstack_react-query.js?v=9115b9c4:846
+start @ @tanstack_react-query.js?v=9115b9c4:885
+fetch @ @tanstack_react-query.js?v=9115b9c4:1196
+executeFetch_fn @ @tanstack_react-query.js?v=9115b9c4:1706
+fetch @ @tanstack_react-query.js?v=9115b9c4:1514
+refetch @ @tanstack_react-query.js?v=9115b9c4:1504
+onFocus @ @tanstack_react-query.js?v=9115b9c4:1050
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2814
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2813
+batch @ @tanstack_react-query.js?v=9115b9c4:671
+onFocus @ @tanstack_react-query.js?v=9115b9c4:2812
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:2852
+await in (anonymous)
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:92
+onFocus @ @tanstack_react-query.js?v=9115b9c4:91
+(anonymous) @ @tanstack_react-query.js?v=9115b9c4:78
+listener @ @tanstack_react-query.js?v=9115b9c4:49

@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+database:
+  dsn: "postgres://root:123456@localhost:5432/xhs?sslmode=disable"
+  maxOpenConns: 10
+  maxIdleConns: 5
+  connMaxLifetime: 3600
+
+jwt:
+  secretKey: "hjimhfdhfshfiherfruy"
+  expireTime: "240h"
+
+minio:
+  endpoint: "localhost:9000"
+  accessKey: "minioadmin"
+  secretKey: "minioadmin"
+  bucket: "xhs"
+  useSSL: false
+
+# 限流配置
+# enable: 是否启用限流
+# method: 限流算法，目前支持 "token_bucket"
+# qps: 每秒允许的请求数
+# burst: 允许的突发请求数
+# keyFunc: 限流key来源，"ip"按IP限流，"user_id"按用户ID限流
+rateLimit:
+  enable: false
+  method: "token_bucket"
+  qps: 10
+  burst: 20
+  keyFunc: "ip"

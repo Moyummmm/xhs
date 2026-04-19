@@ -1,0 +1,28 @@
+chunk-UPELNCPK.js?v=9115b9c4:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+react-router-dom.js?v=9115b9c4:4436 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=9115b9c4:4436
+react-router-dom.js?v=9115b9c4:4436 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=9115b9c4:4436
+react_jsx-dev-runtime.js?v=9115b9c4:64 Warning: Each child in a list should have a unique "key" prop.
+
+Check the render method of `HomePage`. See https://reactjs.org/link/warning-keys for more information.
+    at NoteCard (http://localhost:3000/src/components/NoteCard/index.tsx:22:28)
+    at HomePage (http://localhost:3000/src/pages/Home/index.tsx:65:37)
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:4131:5)
+    at Outlet (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:4537:26)
+    at main
+    at div
+    at div
+    at Layout
+    at RenderedRoute (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:4131:5)
+    at Routes (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:4601:5)
+    at AppContent (http://localhost:3000/src/App.tsx:46:49)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=9115b9c4:5290:5)
+    at LocaleProvider (http://localhost:3000/node_modules/.vite/deps/antd.js?v=9115b9c4:3724:13)
+    at MotionWrapper (http://localhost:3000/node_modules/.vite/deps/antd.js?v=9115b9c4:6258:32)
+    at ProviderChildren (http://localhost:3000/node_modules/.vite/deps/antd.js?v=9115b9c4:6366:5)
+    at ConfigProvider (http://localhost:3000/node_modules/.vite/deps/antd.js?v=9115b9c4:6657:27)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=9115b9c4:3194:3)
+    at App
+printWarning @ react_jsx-dev-runtime.js?v=9115b9c4:64
