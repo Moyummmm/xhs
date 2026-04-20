@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"server/internal/model"
 	"server/internal/repository"
@@ -12,7 +13,6 @@ var (
 	ErrInvalidContent  = errors.New("评论内容不能为空")
 )
 
-// CommentService 评论服务
 type CommentService struct {
 	r *repository.CommentRepository
 }
@@ -21,8 +21,7 @@ func NewCommentService(r *repository.CommentRepository) *CommentService {
 	return &CommentService{r: r}
 }
 
-// CreateComment 创建评论或回复
-func (s *CommentService) CreateComment(userID, noteID uint, content string, parentID uint) error {
+func (s *CommentService) CreateComment(ctx context.Context, userID, noteID uint, content string, parentID *uint) error {
 	if content == "" {
 		return ErrInvalidContent
 	}
@@ -34,24 +33,21 @@ func (s *CommentService) CreateComment(userID, noteID uint, content string, pare
 		ParentID: parentID,
 	}
 
-	if parentID > 0 {
-		// 回复：更新父评论的 reply_count
-		if err := s.r.UpdateReplyCount(parentID, 1); err != nil {
+	if parentID != nil && *parentID > 0 {
+		if err := s.r.UpdateReplyCount(ctx, *parentID, 1); err != nil {
 			return err
 		}
 	} else {
-		// 一级评论：更新笔记的 comment_count
-		if err := s.r.UpdateNoteCommentCount(noteID, 1); err != nil {
+		if err := s.r.UpdateNoteCommentCount(ctx, noteID, 1); err != nil {
 			return err
 		}
 	}
 
-	return s.r.Create(comment)
+	return s.r.Create(ctx, comment)
 }
 
-// DeleteComment 删除评论（仅允许删除自己的评论）
-func (s *CommentService) DeleteComment(userID, commentID uint) error {
-	comment, err := s.r.GetByID(commentID)
+func (s *CommentService) DeleteComment(ctx context.Context, userID, commentID uint) error {
+	comment, err := s.r.GetByID(ctx, commentID)
 	if err != nil {
 		return ErrCommentNotFound
 	}
@@ -60,16 +56,14 @@ func (s *CommentService) DeleteComment(userID, commentID uint) error {
 		return ErrNoPermission
 	}
 
-	if err := s.r.Delete(commentID); err != nil {
+	if err := s.r.Delete(ctx, commentID); err != nil {
 		return err
 	}
 
-	if comment.ParentID > 0 {
-		// 回复：减少父评论的 reply_count
-		_ = s.r.UpdateReplyCount(comment.ParentID, -1)
+	if comment.ParentID != nil && *comment.ParentID > 0 {
+		_ = s.r.UpdateReplyCount(ctx, *comment.ParentID, -1)
 	} else {
-		// 一级评论：减少笔记的 comment_count
-		_ = s.r.UpdateNoteCommentCount(comment.NoteID, -1)
+		_ = s.r.UpdateNoteCommentCount(ctx, comment.NoteID, -1)
 	}
 
 	return nil
@@ -104,8 +98,7 @@ type CommentListResp struct {
 	PageSize int           `json:"page_size"`
 }
 
-// GetComments 获取笔记的评论列表
-func (s *CommentService) GetComments(noteID uint, page, pageSize int, sort string, currentUserID uint) (*CommentListResp, error) {
+func (s *CommentService) GetComments(ctx context.Context, noteID uint, page, pageSize int, sort string, currentUserID uint) (*CommentListResp, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -116,41 +109,39 @@ func (s *CommentService) GetComments(noteID uint, page, pageSize int, sort strin
 		pageSize = 50
 	}
 
-	comments, total, err := s.r.GetByNoteId(noteID, page, pageSize, sort)
+	comments, total, err := s.r.GetByNoteId(ctx, noteID, page, pageSize, sort)
 	if err != nil {
 		return nil, err
 	}
 
-	// 收集所有一级评论 ID
 	parentIDs := make([]uint, 0, len(comments))
 	for _, c := range comments {
 		parentIDs = append(parentIDs, c.ID)
 	}
 
-	// 批量获取回复
 	repliesMap := make(map[uint][]model.Comment)
 	if len(parentIDs) > 0 {
-		allReplies, err := s.r.GetRepliesByParentIDs(parentIDs)
+		allReplies, err := s.r.GetRepliesByParentIDs(ctx, parentIDs)
 		if err == nil {
 			for _, r := range allReplies {
-				repliesMap[r.ParentID] = append(repliesMap[r.ParentID], r)
+				if r.ParentID != nil {
+					repliesMap[*r.ParentID] = append(repliesMap[*r.ParentID], r)
+				}
 			}
 		}
 	}
 
-	// 批量查询点赞状态
 	likedSet := make(map[uint]bool)
 	if currentUserID > 0 && len(parentIDs) > 0 {
 		for _, c := range comments {
-			isLiked, _ := s.r.IsLikedByUser(currentUserID, c.ID)
+			isLiked, _ := s.r.IsLikedByUser(ctx, currentUserID, c.ID)
 			if isLiked {
 				likedSet[c.ID] = true
 			}
 		}
-		// 也查询回复的点赞状态（一级评论展示的前3条回复）
 		for _, replies := range repliesMap {
 			for _, r := range replies {
-				isLiked, _ := s.r.IsLikedByUser(currentUserID, r.ID)
+				isLiked, _ := s.r.IsLikedByUser(ctx, currentUserID, r.ID)
 				if isLiked {
 					likedSet[r.ID] = true
 				}
@@ -171,7 +162,6 @@ func (s *CommentService) GetComments(noteID uint, page, pageSize int, sort strin
 			Replies:    make([]ReplyItem, 0),
 		}
 
-		// 每条一级评论最多展示 3 条回复
 		replies := repliesMap[c.ID]
 		limit := 3
 		if len(replies) < limit {

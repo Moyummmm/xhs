@@ -35,7 +35,7 @@ export const Image: React.FC<ImageProps> = ({
           setLoading(false);
         }}
         className={clsx(
-          'w-full h-full object-cover transition-opacity duration-300',
+          'w-full transition-opacity duration-300',
           loading ? 'opacity-0' : 'opacity-100'
         )}
         {...props}

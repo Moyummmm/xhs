@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"server/internal/model"
 	"server/internal/repository"
@@ -11,59 +12,32 @@ var (
 	ErrNoPermission = errors.New("无权限")
 )
 
-// NoteService 笔记服务结构体，封装笔记相关的业务逻辑
 type NoteService struct {
-	r *repository.NoteRepository // 笔记仓库实例，用于数据持久化操作
+	r *repository.NoteRepository
 }
 
-// NewNoteService 创建一个新的笔记服务实例
-// 参数:
-//   - r: 笔记仓库实例
-//
-// 返回:
-//   - 笔记服务实例指针
 func NewNoteService(r *repository.NoteRepository) *NoteService {
 	return &NoteService{r: r}
 }
 
-// Create 创建新笔记
-// 参数:
-//   - note: 笔记模型指针，包含笔记的详细信息
-//
-// 返回:
-//   - 错误信息，如果创建成功则返回nil
-func (s *NoteService) Create(note *model.Note) error {
-	return s.r.Create(note)
+func (s *NoteService) Create(ctx context.Context, note *model.Note) error {
+	return s.r.Create(ctx, note)
 }
 
-// CreateWithImages 创建笔记并附带图片
-func (s *NoteService) CreateWithImages(note *model.Note) error {
-	return s.r.CreateWithImages(note)
+func (s *NoteService) CreateWithImages(ctx context.Context, note *model.Note) error {
+	return s.r.CreateWithImages(ctx, note)
 }
 
-// DeleteByNoteId 根据笔记ID删除笔记
-// 参数:
-//   - noteId: 笔记的唯一标识ID
-//
-// 返回:
-//   - 错误信息，如果删除成功则返回nil
-func (s *NoteService) DeleteByNoteId(noteId uint) error {
-	return s.r.DeleteByNoteId(noteId)
+func (s *NoteService) DeleteByNoteId(ctx context.Context, noteId uint) error {
+	return s.r.DeleteByNoteId(ctx, noteId)
 }
 
-// Update 更新笔记信息
-// 参数:
-//   - note: 笔记模型指针，包含更新后的笔记信息
-//
-// 返回:
-//   - 错误信息，如果更新成功则返回nil
-func (s *NoteService) Update(note *model.Note) error {
-	return s.r.Update(note)
+func (s *NoteService) Update(ctx context.Context, note *model.Note) error {
+	return s.r.Update(ctx, note)
 }
 
-// UpdateWithImages 更新笔记并附带图片
-func (s *NoteService) UpdateWithImages(note *model.Note) error {
-	existingNote, err := s.r.GetById(note.ID)
+func (s *NoteService) UpdateWithImages(ctx context.Context, note *model.Note) error {
+	existingNote, err := s.r.GetById(ctx, note.ID)
 	if err != nil {
 		return ErrNoteNotFound
 	}
@@ -72,34 +46,35 @@ func (s *NoteService) UpdateWithImages(note *model.Note) error {
 		return ErrNoPermission
 	}
 
-	return s.r.UpdateWithImages(note)
+	return s.r.UpdateWithImages(ctx, note)
 }
 
-// GetByUserId 根据用户ID获取该用户的所有笔记
-// 参数:
-//   - userId: 用户的唯一标识ID
-//
-// 返回:
-//   - 笔记列表，包含该用户的所有笔记
-//   - 错误信息，如果查询成功则返回nil
-func (s *NoteService) GetByUserId(userId uint) ([]model.Note, error) {
-	return s.r.GetByUserId(userId)
+func (s *NoteService) GetByUserId(ctx context.Context, userId uint) ([]model.Note, error) {
+	return s.r.GetByUserId(ctx, userId)
 }
 
-// GetByUserIdWithPagination 根据用户ID分页获取笔记
-func (s *NoteService) GetByUserIdWithPagination(userId uint, page, pageSize int) ([]model.Note, int64, error) {
+func (s *NoteService) GetByUserIdWithPagination(ctx context.Context, userId uint, page, pageSize int) ([]model.Note, int64, error) {
 	if page < 1 {
 		page = 1
 	}
 	if pageSize < 1 {
 		pageSize = 10
 	}
-	return s.r.GetByUserIdWithPagination(userId, page, pageSize)
+	return s.r.GetByUserIdWithPagination(ctx, userId, page, pageSize)
 }
 
-// GetById 根据笔记ID获取笔记
-func (s *NoteService) GetById(noteId uint) (*model.Note, error) {
-	return s.r.GetById(noteId)
+func (s *NoteService) GetLikedNotesByUserIdWithPagination(ctx context.Context, userId uint, page, pageSize int) ([]model.Note, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	return s.r.GetLikedNotesByUserIdWithPagination(ctx, userId, page, pageSize)
+}
+
+func (s *NoteService) GetById(ctx context.Context, noteId uint) (*model.Note, error) {
+	return s.r.GetById(ctx, noteId)
 }
 
 // Pagination 分页信息
@@ -116,8 +91,7 @@ type NoteListResp struct {
 	Pagination Pagination   `json:"pagination"`
 }
 
-// SearchNotes 搜索笔记
-func (s *NoteService) SearchNotes(keyword string, page, pageSize int) (*NoteListResp, error) {
+func (s *NoteService) SearchNotes(ctx context.Context, keyword string, page, pageSize int) (*NoteListResp, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -125,7 +99,7 @@ func (s *NoteService) SearchNotes(keyword string, page, pageSize int) (*NoteList
 		pageSize = 10
 	}
 
-	notes, total, err := s.r.SearchNotes(keyword, page, pageSize)
+	notes, total, err := s.r.SearchNotes(ctx, keyword, page, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +120,7 @@ func (s *NoteService) SearchNotes(keyword string, page, pageSize int) (*NoteList
 	}, nil
 }
 
-// GetNoteList 获取笔记列表，按综合打分排序
-func (s *NoteService) GetNoteList(page, pageSize int) (*NoteListResp, error) {
+func (s *NoteService) GetNoteList(ctx context.Context, page, pageSize int) (*NoteListResp, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -155,7 +128,7 @@ func (s *NoteService) GetNoteList(page, pageSize int) (*NoteListResp, error) {
 		pageSize = 10
 	}
 
-	notes, total, err := s.r.GetNoteList(page, pageSize)
+	notes, total, err := s.r.GetNoteList(ctx, page, pageSize)
 	if err != nil {
 		return nil, err
 	}

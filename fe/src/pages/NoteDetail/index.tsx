@@ -47,30 +47,98 @@ const NoteDetailPage: React.FC = () => {
   // 点赞
   const likeMutation = useMutation({
     mutationFn: (noteId: number) => likeNote(noteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['note', id] });
+    onMutate: async (noteId) => {
+      await queryClient.cancelQueries({ queryKey: ['note', noteId] });
+      const previous = queryClient.getQueryData(['note', noteId]);
+      queryClient.setQueryData(['note', noteId], (old: Note | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          is_liked: true,
+          like_count: (old.like_count || 0) + 1,
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, noteId, context) => {
+      queryClient.setQueryData(['note', noteId], context?.previous);
+      message.error('点赞失败');
+    },
+    onSettled: (noteId) => {
+      queryClient.invalidateQueries({ queryKey: ['note', noteId] });
     },
   });
 
   const unlikeMutation = useMutation({
     mutationFn: (noteId: number) => unlikeNote(noteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['note', id] });
+    onMutate: async (noteId) => {
+      await queryClient.cancelQueries({ queryKey: ['note', noteId] });
+      const previous = queryClient.getQueryData(['note', noteId]);
+      queryClient.setQueryData(['note', noteId], (old: Note | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          is_liked: false,
+          like_count: Math.max((old.like_count || 1) - 1, 0),
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, noteId, context) => {
+      queryClient.setQueryData(['note', noteId], context?.previous);
+      message.error('取消点赞失败');
+    },
+    onSettled: (noteId) => {
+      queryClient.invalidateQueries({ queryKey: ['note', noteId] });
     },
   });
 
   // 收藏
   const collectMutation = useMutation({
     mutationFn: (noteId: number) => collectNote(noteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['note', id] });
+    onMutate: async (noteId) => {
+      await queryClient.cancelQueries({ queryKey: ['note', noteId] });
+      const previous = queryClient.getQueryData(['note', noteId]);
+      queryClient.setQueryData(['note', noteId], (old: Note | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          is_collected: true,
+          collect_count: (old.collect_count || 0) + 1,
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, noteId, context) => {
+      queryClient.setQueryData(['note', noteId], context?.previous);
+      message.error('收藏失败');
+    },
+    onSettled: (noteId) => {
+      queryClient.invalidateQueries({ queryKey: ['note', noteId] });
     },
   });
 
   const uncollectMutation = useMutation({
     mutationFn: (noteId: number) => uncollectNote(noteId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['note', id] });
+    onMutate: async (noteId) => {
+      await queryClient.cancelQueries({ queryKey: ['note', noteId] });
+      const previous = queryClient.getQueryData(['note', noteId]);
+      queryClient.setQueryData(['note', noteId], (old: Note | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          is_collected: false,
+          collect_count: Math.max((old.collect_count || 1) - 1, 0),
+        };
+      });
+      return { previous };
+    },
+    onError: (_err, noteId, context) => {
+      queryClient.setQueryData(['note', noteId], context?.previous);
+      message.error('取消收藏失败');
+    },
+    onSettled: (noteId) => {
+      queryClient.invalidateQueries({ queryKey: ['note', noteId] });
     },
   });
 

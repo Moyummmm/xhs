@@ -16,6 +16,7 @@ import SearchPage from '@/pages/Search';
 import NotificationsPage from '@/pages/Notifications';
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
+import EditProfilePage from '@/pages/EditProfile';
 import NotFoundPage from '@/pages/NotFound';
 
 import { useUIStore, useAuthStore } from '@/stores';
@@ -80,10 +81,7 @@ const AppContent: React.FC = () => {
             path="/edit-profile"
             element={
               <ProtectedRoute>
-                <div className="container-custom py-8">
-                  <h1 className="text-2xl font-bold mb-4">编辑资料</h1>
-                  <p className="text-gray-500">功能开发中...</p>
-                </div>
+                <EditProfilePage />
               </ProtectedRoute>
             }
           />

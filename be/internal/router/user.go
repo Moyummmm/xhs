@@ -12,6 +12,7 @@ func RegisterUserRoutes(r *gin.RouterGroup) {
 	r.GET("/users/me", middleware.Auth(), handler.GetCurrentUser)
 	r.GET("/users/:id", handler.GetUserById)
 	r.GET("/users/:id/notes", handler.GetUserNotes)
+	r.GET("/users/:id/likes", handler.GetLikedNotes)
 	r.GET("/users/:id/followers", handler.GetFollowers)
 	r.GET("/users/:id/followings", handler.GetFollowings)
 

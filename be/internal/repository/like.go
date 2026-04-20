@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"server/internal/model"
 
 	"gorm.io/gorm"
@@ -14,39 +15,53 @@ func NewLikeRepository(db *gorm.DB) *LikeRepository {
 	return &LikeRepository{db: db}
 }
 
-// LikeNote 点赞笔记
-func (r *LikeRepository) LikeNote(userId, noteId uint) error {
-	like := model.Like4Note{
-		NoteID: noteId,
-		UserID: userId,
+func (r *LikeRepository) LikeNote(ctx context.Context, userId, noteId uint) error {
+	var like model.Like4Note
+
+	err := r.db.WithContext(ctx).Unscoped().Where("note_id = ? AND user_id = ?", noteId, userId).First(&like).Error
+	if err == nil {
+		if like.DeletedAt.Valid {
+			err = r.db.WithContext(ctx).Unscoped().Model(&like).Update("deleted_at", nil).Error
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
-	if err := r.db.Save(&like).Error; err != nil {
+
+	if err == gorm.ErrRecordNotFound {
+		like = model.Like4Note{
+			NoteID: noteId,
+			UserID: userId,
+		}
+		if err := r.db.WithContext(ctx).Save(&like).Error; err != nil {
+			return err
+		}
+	} else {
 		return err
 	}
-	return r.db.Model(&model.Note{}).Where("id = ?", noteId).
+
+	return r.db.WithContext(ctx).Model(&model.Note{}).Where("id = ?", noteId).
 		UpdateColumn("like_count", gorm.Expr("like_count + ?", 1)).Error
 }
 
-// UnlikeNote 取消点赞笔记
-func (r *LikeRepository) UnlikeNote(userId, noteId uint) error {
-	if err := r.db.Where("user_id = ? AND note_id = ?", userId, noteId).
+func (r *LikeRepository) UnlikeNote(ctx context.Context, userId, noteId uint) error {
+	if err := r.db.WithContext(ctx).Where("user_id = ? AND note_id = ?", userId, noteId).
 		Delete(&model.Like4Note{}).Error; err != nil {
 		return err
 	}
-	return r.db.Model(&model.Note{}).Where("id = ?", noteId).
+	return r.db.WithContext(ctx).Model(&model.Note{}).Where("id = ?", noteId).
 		UpdateColumn("like_count", gorm.Expr("like_count - ?", 1)).Error
 }
 
-// GetLikeCountByNoteId 获取笔记点赞数量
-func (r *LikeRepository) GetLikeCountByNoteId(noteId uint) (int, error) {
+func (r *LikeRepository) GetLikeCountByNoteId(ctx context.Context, noteId uint) (int, error) {
 	var count int64
-	err := r.db.Model(&model.Like4Note{}).Where("note_id = ?", noteId).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&model.Like4Note{}).Where("note_id = ?", noteId).Count(&count).Error
 	return int(count), err
 }
 
-// IsLiked 检查用户是否点赞了笔记
-func (r *LikeRepository) IsLiked(userId, noteId uint) (bool, error) {
+func (r *LikeRepository) IsLiked(ctx context.Context, userId, noteId uint) (bool, error) {
 	var count int64
-	err := r.db.Model(&model.Like4Note{}).Where("user_id = ? AND note_id = ?", userId, noteId).Count(&count).Error
+	err := r.db.WithContext(ctx).Model(&model.Like4Note{}).Where("user_id = ? AND note_id = ?", userId, noteId).Count(&count).Error
 	return count > 0, err
 }

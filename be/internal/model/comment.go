@@ -14,7 +14,7 @@ type Comment struct {
 	Content  string `gorm:"size:500;not null" json:"content"`
 	NoteID   uint   `gorm:"index;not null" json:"note_id"`
 	UserID   uint   `gorm:"index;not null" json:"user_id"`
-	ParentID uint   `gorm:"index;default:0" json:"parent_id"`
+	ParentID *uint  `gorm:"index;default:0" json:"parent_id"`
 
 	// 【新增】评论的点赞数
 	LikeCount uint `gorm:"default:0" json:"like_count"`

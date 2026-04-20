@@ -26,15 +26,15 @@ func init() {
 
 type UpdateRequest model.User
 
-// Method: POST /user/update
-// Update 用户修改信息（保留以兼容旧接口）
 func Update(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req UpdateRequest
 	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
 		response.Fail(c, errorConfig.ErrBadRequest.Code, "request parameter wrong")
 		return
 	}
-	result, _ := userService.Patch(model.User(req))
+	result, _ := userService.Patch(ctx, model.User(req))
 	if result {
 		response.Success(c, "success")
 		return
@@ -42,16 +42,16 @@ func Update(c *gin.Context) {
 	response.Fail(c, 500, "内部错误")
 }
 
-// GetCurrentUser 获取当前登录用户信息
-// GET /users/me
 func GetCurrentUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	userId := uint(middleware.CurrentUserID(c))
 	if userId == 0 {
 		response.Fail(c, errorConfig.ErrUnauthorized.Code, "未登录")
 		return
 	}
 
-	user, err := userService.GetById(userId)
+	user, err := userService.GetById(ctx, userId)
 	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "获取用户信息失败")
 		return
@@ -59,9 +59,9 @@ func GetCurrentUser(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// GetUserById 获取用户信息
-// GET /users/:id
 func GetUserById(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -69,7 +69,7 @@ func GetUserById(c *gin.Context) {
 		return
 	}
 
-	user, err := userService.GetById(uint(id))
+	user, err := userService.GetById(ctx, uint(id))
 	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "获取用户信息失败")
 		return
@@ -77,9 +77,9 @@ func GetUserById(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// UpdateUserById 更新用户信息
-// PUT /users/:id
 func UpdateUserById(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -93,16 +93,17 @@ func UpdateUserById(c *gin.Context) {
 		return
 	}
 
-	if err := userService.UpdateById(uint(id), req); err != nil {
+	updated, err := userService.UpdateById(ctx, uint(id), req)
+	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "更新用户信息失败")
 		return
 	}
-	response.Success(c, "更新成功")
+	response.Success(c, updated)
 }
 
-// DeleteUserById 删除用户
-// DELETE /users/:id
 func DeleteUserById(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -110,16 +111,16 @@ func DeleteUserById(c *gin.Context) {
 		return
 	}
 
-	if err := userService.DeleteById(uint(id)); err != nil {
+	if err := userService.DeleteById(ctx, uint(id)); err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "删除用户失败")
 		return
 	}
 	response.Success(c, "删除成功")
 }
 
-// FollowUser 关注用户
-// POST /users/:id/follow
 func FollowUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	targetId, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -132,16 +133,16 @@ func FollowUser(c *gin.Context) {
 		response.Fail(c, errorConfig.ErrUnauthorized.Code, "未登录")
 		return
 	}
-	if err := followService.Follow(userId, uint(targetId)); err != nil {
+	if err := followService.Follow(ctx, userId, uint(targetId)); err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "关注失败")
 		return
 	}
 	response.Success(c, "关注成功")
 }
 
-// UnfollowUser 取消关注用户
-// DELETE /users/:id/follow
 func UnfollowUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	targetId, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -154,16 +155,16 @@ func UnfollowUser(c *gin.Context) {
 		response.Fail(c, errorConfig.ErrUnauthorized.Code, "未登录")
 		return
 	}
-	if err := followService.Unfollow(userId, uint(targetId)); err != nil {
+	if err := followService.Unfollow(ctx, userId, uint(targetId)); err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "取消关注失败")
 		return
 	}
 	response.Success(c, "取消关注成功")
 }
 
-// GetFollowers 获取粉丝列表
-// GET /users/:id/followers
 func GetFollowers(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	userId, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -171,7 +172,7 @@ func GetFollowers(c *gin.Context) {
 		return
 	}
 
-	users, err := followService.GetFollowers(uint(userId))
+	users, err := followService.GetFollowers(ctx, uint(userId))
 	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "获取粉丝列表失败")
 		return
@@ -179,9 +180,9 @@ func GetFollowers(c *gin.Context) {
 	response.Success(c, users)
 }
 
-// GetFollowings 获取关注列表
-// GET /users/:id/followings
 func GetFollowings(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	userId, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -189,7 +190,7 @@ func GetFollowings(c *gin.Context) {
 		return
 	}
 
-	users, err := followService.GetFollowings(uint(userId))
+	users, err := followService.GetFollowings(ctx, uint(userId))
 	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "获取关注列表失败")
 		return

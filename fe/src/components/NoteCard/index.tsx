@@ -14,21 +14,16 @@ interface NoteCardProps {
 export const NoteCard: React.FC<NoteCardProps> = ({ note, className }) => {
   const { id, title, cover_url, images, user, like_count } = note;
 
-  // 防御：确保 width/height 有效
   const firstImage = images && images.length > 0 ? images[0] : null;
-  const hasValidDimensions = firstImage && firstImage.width > 0 && firstImage.height > 0;
-  const aspectRatio = hasValidDimensions
-    ? firstImage.width / firstImage.height
-    : 3 / 4;
 
   const cardContent = (
     <>
       {/* Cover Image */}
-      <div className="relative" style={{ paddingBottom: `${(1 / aspectRatio) * 100}%` }}>
+      <div className="relative w-full">
         <Image
           src={cover_url || firstImage?.url || ''}
           alt={title}
-          className="absolute inset-0 w-full h-full"
+          className="w-full h-auto block"
         />
         {images && images.length > 1 && (
           <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">

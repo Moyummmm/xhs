@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { Button, Tabs, message } from 'antd';
 import { LeftOutlined, EditOutlined } from '@ant-design/icons';
-import { getUserInfo, followUser, unfollowUser, getUserNotes } from '@/api/user';
+import { getUserInfo, followUser, unfollowUser, getUserNotes, getUserLikes, getUserCollections } from '@/api/user';
 import NoteCard from '@/components/NoteCard';
 import InfiniteScroll from '@/components/InfiniteScroll';
 import { formatNumber, parseRouteId } from '@/utils';
 import { useAuthStore } from '@/stores';
 import type { User, Note, PaginatedList } from '@/types';
+
+type TabKey = 'notes' | 'likes' | 'collections';
 
 const ProfilePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const { user: currentUser, isAuthenticated } = useAuthStore();
   const userId = parseRouteId(id);
   const isOwnProfile = currentUser?.id === userId;
+  const [activeTab, setActiveTab] = useState<TabKey>('notes');
 
   // 获取用户信息
   const { data: user } = useQuery<User>({
@@ -28,13 +31,47 @@ const ProfilePage: React.FC = () => {
   // 获取用户笔记
   const {
     data: notesData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
+    fetchNextPage: fetchNotes,
+    hasNextPage: hasNotesMore,
+    isFetchingNextPage: isFetchingNotes,
+    isLoading: isLoadingNotes,
   } = useInfiniteQuery<PaginatedList<Note>>({
     queryKey: ['user-notes', userId],
     queryFn: ({ pageParam }) => getUserNotes(userId!, pageParam as number, 20),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.has_more ? lastPage.pagination.page + 1 : undefined;
+    },
+    enabled: userId !== null,
+  });
+
+  // 获取用户赞过的笔记
+  const {
+    data: likesData,
+    fetchNextPage: fetchLikes,
+    hasNextPage: hasLikesMore,
+    isFetchingNextPage: isFetchingLikes,
+    isLoading: isLoadingLikes,
+  } = useInfiniteQuery<PaginatedList<Note>>({
+    queryKey: ['user-likes', userId],
+    queryFn: ({ pageParam }) => getUserLikes(userId!, pageParam as number, 20),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.has_more ? lastPage.pagination.page + 1 : undefined;
+    },
+    enabled: userId !== null,
+  });
+
+  // 获取用户收藏的笔记
+  const {
+    data: collectionsData,
+    fetchNextPage: fetchCollections,
+    hasNextPage: hasCollectionsMore,
+    isFetchingNextPage: isFetchingCollections,
+    isLoading: isLoadingCollections,
+  } = useInfiniteQuery<PaginatedList<Note>>({
+    queryKey: ['user-collections', userId],
+    queryFn: ({ pageParam }) => getUserCollections(userId!, pageParam as number, 20),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       return lastPage.pagination.has_more ? lastPage.pagination.page + 1 : undefined;
@@ -85,12 +122,15 @@ const ProfilePage: React.FC = () => {
   }
 
   const notes = notesData?.pages.flatMap((page) => page.list) ?? [];
-  const isEmpty = !isLoading && notes.length === 0;
+  const likes = likesData?.pages.flatMap((page) => page.list) ?? [];
+  const collections = collectionsData?.pages.flatMap((page) => page.list) ?? [];
+
+  const currentData = activeTab === 'likes' ? likes : activeTab === 'collections' ? collections : notes;
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between sticky top-[60px] z-40">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-gray-600 hover:text-gray-800">
           <LeftOutlined />
         </button>
@@ -159,7 +199,8 @@ const ProfilePage: React.FC = () => {
       {/* Notes Grid */}
       <div className="container-custom py-4">
         <Tabs
-          defaultActiveKey="notes"
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key as TabKey)}
           items={[
             { key: 'notes', label: '笔记' },
             { key: 'likes', label: '赞过' },
@@ -168,14 +209,30 @@ const ProfilePage: React.FC = () => {
         />
         <div className="mt-4">
           <InfiniteScroll
-            hasNextPage={hasNextPage || false}
-            isFetchingNextPage={isFetchingNextPage}
-            fetchNextPage={fetchNextPage}
-            isEmpty={isEmpty}
-            emptyText="暂无笔记"
-            isLoading={isLoading}
+            hasNextPage={
+              activeTab === 'likes' ? hasLikesMore || false :
+              activeTab === 'collections' ? hasCollectionsMore || false :
+              hasNotesMore || false
+            }
+            isFetchingNextPage={
+              activeTab === 'likes' ? isFetchingLikes :
+              activeTab === 'collections' ? isFetchingCollections :
+              isFetchingNotes
+            }
+            fetchNextPage={
+              activeTab === 'likes' ? fetchLikes :
+              activeTab === 'collections' ? fetchCollections :
+              fetchNotes
+            }
+            isEmpty={!isLoadingNotes && currentData.length === 0}
+            emptyText={activeTab === 'likes' ? '暂无赞过' : activeTab === 'collections' ? '暂无收藏' : '暂无笔记'}
+            isLoading={
+              activeTab === 'likes' ? isLoadingLikes :
+              activeTab === 'collections' ? isLoadingCollections :
+              isLoadingNotes
+            }
           >
-            {notes.map((note: Note) => (
+            {currentData.map((note: Note) => (
               <NoteCard key={note.id} note={note} />
             ))}
           </InfiniteScroll>

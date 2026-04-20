@@ -15,7 +15,7 @@ export const getComments = (params: CommentListParams) => {
  * 创建评论
  */
 export const createComment = (data: CreateCommentRequest) => {
-  return http.post<Comment>(API_PATHS.COMMENTS, data);
+  return http.post<Comment>(API_PATHS.NOTE_COMMENTS(data.note_id), data);
 };
 
 /**

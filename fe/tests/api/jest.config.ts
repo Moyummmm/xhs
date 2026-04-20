@@ -13,6 +13,6 @@ export default {
     '!src/**/*.d.ts',
   ],
   coverageDirectory: 'coverage/api',
-  setupFilesAfterEnv: ['<rootDir>/tests/api/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/setup.ts'],
   testTimeout: 30000,
 };

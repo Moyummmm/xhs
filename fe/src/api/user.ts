@@ -26,6 +26,24 @@ export const getUserNotes = (id: number, page = 1, pageSize = 20) => {
 };
 
 /**
+ * 获取用户赞过的笔记列表
+ */
+export const getUserLikes = (id: number, page = 1, pageSize = 20) => {
+  return http.get<PaginatedList<Note>>(API_PATHS.USER_LIKES(id), {
+    params: { page, page_size: pageSize },
+  });
+};
+
+/**
+ * 获取用户收藏列表
+ */
+export const getUserCollections = (id: number, page = 1, pageSize = 20) => {
+  return http.get<PaginatedList<Note>>(API_PATHS.USER_COLLECTIONS, {
+    params: { user_id: id, page, page_size: pageSize },
+  });
+};
+
+/**
  * 关注用户
  */
 export const followUser = (id: number) => {

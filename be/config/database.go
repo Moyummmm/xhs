@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+	"github.com/uptrace/opentelemetry-go-extra/otelgorm"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -68,6 +69,10 @@ func initDB() error {
 	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
 	sqlDB.SetConnMaxLifetime(time.Duration(cfg.ConnMaxLifetime) * time.Second)
+
+	if err := db.Use(otelgorm.NewPlugin()); err != nil {
+		return fmt.Errorf("otelgorm plugin init failed: %v", err)
+	}
 
 	dbInst = db
 	db.AutoMigrate(

@@ -98,13 +98,10 @@ func main() {
 		imageCount := rand.Intn(5) + 1
 		images := make([]model.NoteImage, imageCount)
 		for j := 0; j < imageCount; j++ {
-			// 随机生成宽高比，模拟真实图片尺寸
-			width := 600 + rand.Intn(400) // 600~1000
-			height := 400 + rand.Intn(400) // 400~800
 			images[j] = model.NoteImage{
 				URL:    sampleImages[rand.Intn(len(sampleImages))],
-				Width:  width,
-				Height: height,
+				Width:  800,
+				Height: 600,
 			}
 		}
 

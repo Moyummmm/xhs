@@ -17,32 +17,26 @@ func init() {
 	authService = service.NewAuthService(userRepo)
 }
 
-// 请求结构体
-
-// RegisterReq 注册请求参数
 type RegisterReq struct {
 	Nickname string `json:"nickname" binding:"required,min=3,max=30"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
-// LoginReq 登录请求参数
 type LoginReq struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
-// Handler 函数
-
-// Register 用户注册
-// POST /auth/register
 func Register(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req RegisterReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Fail(c, errorConfig.ErrBadRequest.Code, "请求参数错误")
 		return
 	}
 
-	resp, err := authService.Register(service.RegisterReq{
+	resp, err := authService.Register(ctx, service.RegisterReq{
 		Username: req.Nickname,
 		Password: req.Password,
 	})
@@ -55,16 +49,16 @@ func Register(c *gin.Context) {
 	response.Success(c, resp)
 }
 
-// Login 用户登录
-// POST /auth/login
 func Login(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.Fail(c, errorConfig.ErrBadRequest.Code, "请求参数错误")
 		return
 	}
 
-	resp, err := authService.Login(service.LoginReq{
+	resp, err := authService.Login(ctx, service.LoginReq{
 		Username: req.Username,
 		Password: req.Password,
 	})
@@ -77,15 +71,13 @@ func Login(c *gin.Context) {
 	response.Success(c, resp)
 }
 
-// Logout 用户登出
-// POST /auth/logout
 func Logout(c *gin.Context) {
 	response.SuccessMsg(c, "登出成功", nil)
 }
 
-// RefreshToken 刷新token
-// POST /auth/refresh
 func RefreshToken(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
 		response.Fail(c, errorConfig.ErrUnauthorized.Code, "缺少Authorization头")
@@ -99,7 +91,7 @@ func RefreshToken(c *gin.Context) {
 		tokenString = authHeader
 	}
 
-	resp, err := authService.RefreshToken(tokenString)
+	resp, err := authService.RefreshToken(ctx, tokenString)
 	if err != nil {
 		code, msg := errorConfig.ExtractCodeAndMessage(err)
 		response.Fail(c, code, msg)

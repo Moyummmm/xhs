@@ -22,7 +22,6 @@ func init() {
 	commentService = service.NewCommentService(commentRepo)
 }
 
-// extractOptionalUserID 从请求中尝试提取用户ID（公开接口用）
 func extractOptionalUserID(c *gin.Context) uint {
 	tokenString := extractTokenFromRequest(c)
 	if tokenString == "" {
@@ -35,7 +34,6 @@ func extractOptionalUserID(c *gin.Context) uint {
 	return uint(claims.UserID)
 }
 
-// extractTokenFromRequest 提取 token（复制自 middleware/auth.go 的逻辑）
 func extractTokenFromRequest(c *gin.Context) string {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader != "" {
@@ -57,9 +55,9 @@ func extractTokenFromRequest(c *gin.Context) string {
 	return c.Query("token")
 }
 
-// GetComments 获取笔记评论列表
-// GET /notes/:id/comments
 func GetComments(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	noteID, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
@@ -70,7 +68,6 @@ func GetComments(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
 
-	// 兼容前端传的 type=hot 和设计文档的 sort=hot
 	sort := c.DefaultQuery("type", "")
 	if sort == "" {
 		sort = c.DefaultQuery("sort", "hot")
@@ -81,7 +78,7 @@ func GetComments(c *gin.Context) {
 
 	userID := extractOptionalUserID(c)
 
-	result, err := commentService.GetComments(uint(noteID), page, pageSize, sort, userID)
+	result, err := commentService.GetComments(ctx, uint(noteID), page, pageSize, sort, userID)
 	if err != nil {
 		response.Fail(c, errorConfig.ErrInternalServer.Code, "获取评论失败")
 		return
@@ -90,15 +87,14 @@ func GetComments(c *gin.Context) {
 	response.Success(c, result)
 }
 
-// CreateCommentReq 发布评论请求
 type CreateCommentReq struct {
 	Content  string `json:"content" binding:"required,max=500"`
-	ParentID uint   `json:"parent_id"`
+	ParentID *uint  `json:"parent_id"`
 }
 
-// CreateComment 发布评论/回复
-// POST /notes/:id/comments
 func CreateComment(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	noteID, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
@@ -118,7 +114,7 @@ func CreateComment(c *gin.Context) {
 		return
 	}
 
-	if err := commentService.CreateComment(userID, uint(noteID), req.Content, req.ParentID); err != nil {
+	if err := commentService.CreateComment(ctx, userID, uint(noteID), req.Content, req.ParentID); err != nil {
 		if err == service.ErrInvalidContent {
 			response.Fail(c, errorConfig.ErrBadRequest.Code, "评论内容不能为空")
 			return
@@ -130,16 +126,16 @@ func CreateComment(c *gin.Context) {
 	response.Success(c, "发布成功")
 }
 
-// DeleteComment 删除评论
-// DELETE /notes/:id/comments/:comment_id
 func DeleteComment(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	idStr := c.Param("id")
 	noteID, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		response.Fail(c, errorConfig.ErrBadRequest.Code, "笔记ID格式错误")
 		return
 	}
-	_ = noteID // noteID 目前仅用于路由匹配，实际删除以 comment_id 为准
+	_ = noteID
 
 	commentIDStr := c.Param("comment_id")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
@@ -154,7 +150,7 @@ func DeleteComment(c *gin.Context) {
 		return
 	}
 
-	if err := commentService.DeleteComment(userID, uint(commentID)); err != nil {
+	if err := commentService.DeleteComment(ctx, userID, uint(commentID)); err != nil {
 		if err == service.ErrCommentNotFound {
 			response.FailWithStatus(c, http.StatusNotFound, errorConfig.ErrNotFound.Code, "评论不存在")
 			return

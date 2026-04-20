@@ -11,6 +11,7 @@ export const API_PATHS = {
   USER_INFO: (id: number) => `/users/${id}`,
   USER_UPDATE: (id: number) => `/users/${id}`,
   USER_NOTES: (id: number) => `/users/${id}/notes`,
+  USER_LIKES: (id: number) => `/users/${id}/likes`,
   USER_FOLLOW: (id: number) => `/users/${id}/follow`,
   USER_FOLLOWERS: (id: number) => `/users/${id}/followers`,
   USER_FOLLOWINGS: (id: number) => `/users/${id}/followings`,
@@ -25,6 +26,7 @@ export const API_PATHS = {
   NOTE_LIKE: (id: number) => `/notes/${id}/like`,
   NOTE_COLLECT: (id: number) => `/notes/${id}/collect`,
   NOTE_COMMENTS: (id: number) => `/notes/${id}/comments`,
+  USER_COLLECTIONS: '/collects',
 
   // 评论
   COMMENTS: '/comments',

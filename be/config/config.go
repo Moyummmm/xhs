@@ -7,6 +7,7 @@ type Config struct {
 	JWT       JWTConfig       `mapstructure:"jwt"`
 	MinIO     MinIOConfig     `mapstructure:"minio"`
 	RateLimit RateLimitConfig `mapstructure:"rateLimit"`
+	Telemetry TelemetryConfig `mapstructure:"telemetry"`
 }
 
 type ServerConfig struct {
@@ -31,6 +32,11 @@ type MinIOConfig struct {
 	SecretKey string `mapstructure:"secretKey"`
 	Bucket    string `mapstructure:"bucket"`
 	UseSSL    bool   `mapstructure:"useSSL"`
+}
+
+type TelemetryConfig struct {
+	ZipkinEndpoint string `mapstructure:"zipkinEndpoint"`
+	ServiceName    string `mapstructure:"serviceName"`
 }
 
 // RateLimitConfig 限流配置
