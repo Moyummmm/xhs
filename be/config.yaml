@@ -2,7 +2,7 @@ server:
   port: 8080
 
 database:
-  dsn: "postgres://root:123456@localhost:5432/xhs?sslmode=disable"
+  dsn: "postgres://root:123456@localhost:12345/xhs?sslmode=disable"
   maxOpenConns: 10
   maxIdleConns: 5
   connMaxLifetime: 3600
