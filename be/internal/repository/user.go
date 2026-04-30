@@ -65,3 +65,13 @@ func (r *UserRepository) UpdateById(ctx context.Context, id uint, user model.Use
 	}
 	return &updated, nil
 }
+
+func (r *UserRepository) UpdateFollowerCount(ctx context.Context, userId uint, delta int) error {
+	return r.db.WithContext(ctx).Model(&model.User{}).Where("id = ?", userId).
+		UpdateColumn("follower_count", gorm.Expr("follower_count + ?", delta)).Error
+}
+
+func (r *UserRepository) UpdateFollowingCount(ctx context.Context, userId uint, delta int) error {
+	return r.db.WithContext(ctx).Model(&model.User{}).Where("id = ?", userId).
+		UpdateColumn("following_count", gorm.Expr("following_count + ?", delta)).Error
+}

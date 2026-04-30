@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"server/config"
+	"server/internal/cache"
 	"server/internal/middleware"
 	"server/internal/router"
 	"server/internal/telemetry"
@@ -34,6 +35,11 @@ func main() {
 	// 4. 初始化 MinIO
 	if err := config.InitMinIO(); err != nil {
 		log.Fatalf("minio init failed: %v", err)
+	}
+
+	// 5. 初始化 Redis
+	if err := cache.InitRedis(); err != nil {
+		log.Fatalf("redis init failed: %v", err)
 	}
 
 	// 5. 初始化链路追踪

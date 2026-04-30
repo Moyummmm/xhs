@@ -19,13 +19,10 @@ Start required services before developing:
 
 ```bash
 docker-compose up -d   # PostgreSQL on :12345, MinIO on :9000/:9001
+cd be && ./seed.exe    # Seed the database (first time or reset)
 ```
 
-Seed the database (first time or reset):
-
-```bash
-cd be && ./seed.exe
-```
+**Important**: Services use `sync.Once` lazy-loading (`config.DB()`) to avoid Go `init()` ordering issues — do not call `config.DB` at package init time.
 
 ## Backend (Go)
 
@@ -34,6 +31,7 @@ cd be
 go run ./cmd/server                   # Start dev server on :8080
 go build -o server.exe ./cmd/server   # Build binary
 go test ./...                         # Run all tests
+go test ./internal/handler/...        # Run specific package tests
 ```
 
 Config lives in `be/config.yaml`. DB DSN, JWT secret, MinIO credentials are all there.
@@ -64,8 +62,6 @@ All routes are under `/api/v1`. Route registration is split by domain in `be/int
 Unified API response shape: `{ code, msg, data }` via `be/pkg/response/`.
 
 JWT auth middleware lives in `be/internal/middleware/auth.go`. Use `middleware.CurrentUserID(c)` in handlers to get the authenticated user's ID.
-
-**Important**: Services use `sync.Once` lazy-loading (`config.DB()`) to avoid Go `init()` ordering issues — do not call `config.DB` at package init time.
 
 ### Frontend Patterns
 

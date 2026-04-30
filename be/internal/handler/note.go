@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"server/config"
+	"server/internal/cache"
 	"server/internal/middleware"
 	"server/internal/model"
 	"server/internal/repository"
@@ -217,7 +218,7 @@ func GetNote(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
 
-	result, err := noteService.GetNoteList(ctx, page, pageSize)
+	result, err := noteService.GetNoteListCached(ctx, page, pageSize)
 	if err != nil {
 		log.Printf("GetNoteList error: %v", err)
 		response.Fail(c, 500, "获取笔记列表失败")
@@ -347,6 +348,7 @@ func LikeNote(c *gin.Context) {
 		response.Fail(c, 500, "点赞失败")
 		return
 	}
+	cache.InvalidateFeed(ctx)
 	response.Success(c, "点赞成功")
 }
 
@@ -370,5 +372,6 @@ func UnlikeNote(c *gin.Context) {
 		response.Fail(c, 500, "取消点赞失败")
 		return
 	}
+	cache.InvalidateFeed(ctx)
 	response.Success(c, "取消点赞成功")
 }

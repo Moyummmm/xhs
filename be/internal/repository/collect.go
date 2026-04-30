@@ -15,39 +15,55 @@ func NewCollectRepository(db *gorm.DB) *CollectRepository {
 	return &CollectRepository{db: db}
 }
 
+// CollectById 使用 CTE + RETURNING 确保只有在真正新增或恢复已删除收藏时才 +1
+// 避免了重复点击已存在的有效收藏导致的无故 +1
 func (r *CollectRepository) CollectById(ctx context.Context, userId, noteId uint) error {
-	var collection model.Collect
-
-	err := r.db.WithContext(ctx).Unscoped().Where("note_id = ? AND user_id = ?", noteId, userId).First(&collection).Error
-	if err == nil {
-		if collection.DeletedAt.Valid {
-			err = r.db.WithContext(ctx).Unscoped().Model(&collection).Update("deleted_at", nil).Error
-			if err != nil {
-				return err
-			}
-		}
-		return nil
+	sql := `
+		WITH upserted AS (
+			INSERT INTO collects (note_id, user_id, active, deleted_at, updated_at)
+			VALUES ($1, $2, true, NULL, NOW())
+			ON CONFLICT (note_id, user_id)
+			DO UPDATE SET
+				deleted_at = NULL,
+				active = true,
+				updated_at = NOW()
+			WHERE collects.deleted_at IS NOT NULL
+			RETURNING 1 as updated
+		)
+		UPDATE notes
+		SET collect_count = collect_count + 1
+		WHERE id = $3
+		  AND EXISTS (SELECT 1 FROM upserted)
+	`
+	result := r.db.WithContext(ctx).Exec(sql, noteId, userId, noteId)
+	if result.Error != nil {
+		return result.Error
 	}
-
-	if err == gorm.ErrRecordNotFound {
-		collection = model.Collect{
-			NoteID: noteId,
-			UserID: userId,
-			Active: true,
-		}
-		if err := r.db.WithContext(ctx).Save(&collection).Error; err != nil {
-			return err
-		}
-	} else {
-		return err
-	}
-
 	return nil
 }
 
+// DisCollectById 使用 CTE + 条件 UPDATE 确保只有在真正删除了有效收藏时才 -1
+// 避免并发双击导致重复扣减 collect_count
 func (r *CollectRepository) DisCollectById(ctx context.Context, userId, noteId uint) error {
-	return r.db.WithContext(ctx).Where("note_id = ? AND user_id = ?", noteId, userId).
-		Delete(&model.Collect{}).Error
+	sql := `
+		WITH deleted AS (
+			UPDATE collects
+			SET deleted_at = NOW()
+			WHERE note_id = $1
+			  AND user_id = $2
+			  AND deleted_at IS NULL
+			RETURNING 1
+		)
+		UPDATE notes
+		SET collect_count = GREATEST(collect_count - 1, 0)
+		WHERE id = $3
+		  AND EXISTS (SELECT 1 FROM deleted)
+	`
+	result := r.db.WithContext(ctx).Exec(sql, noteId, userId, noteId)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
 
 func (r *CollectRepository) GetCollecCountsByUserId(ctx context.Context, userId uint) (int, error) {

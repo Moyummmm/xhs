@@ -4,10 +4,18 @@ package config
 type Config struct {
 	Server    ServerConfig    `mapstructure:"server"`
 	Database  DatabaseConfig  `mapstructure:"database"`
+	Redis     RedisConfig     `mapstructure:"redis"`
 	JWT       JWTConfig       `mapstructure:"jwt"`
 	MinIO     MinIOConfig     `mapstructure:"minio"`
 	RateLimit RateLimitConfig `mapstructure:"rateLimit"`
 	Telemetry TelemetryConfig `mapstructure:"telemetry"`
+}
+
+type RedisConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
 }
 
 type ServerConfig struct {

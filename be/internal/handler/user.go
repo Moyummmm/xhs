@@ -21,7 +21,7 @@ func init() {
 	userService = service.NewUserService(userRepo)
 
 	followRepo := repository.NewFollowRepository(config.DB())
-	followService = service.NewFollowService(followRepo)
+	followService = service.NewFollowService(followRepo, userRepo)
 }
 
 type UpdateRequest model.User

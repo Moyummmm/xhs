@@ -93,3 +93,19 @@ func (r *CommentRepository) IsLikedByUser(ctx context.Context, userID, commentID
 	err := r.db.WithContext(ctx).Model(&model.Like4Comment{}).Where("user_id = ? AND comment_id = ?", userID, commentID).Count(&count).Error
 	return count > 0, err
 }
+
+func (r *CommentRepository) BatchIsLikedByUser(ctx context.Context, userID uint, commentIDs []uint) (map[uint]bool, error) {
+	if len(commentIDs) == 0 {
+		return make(map[uint]bool), nil
+	}
+	var likes []model.Like4Comment
+	err := r.db.WithContext(ctx).Where("user_id = ? AND comment_id IN ?", userID, commentIDs).Find(&likes).Error
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[uint]bool, len(likes))
+	for _, l := range likes {
+		result[l.CommentID] = true
+	}
+	return result, nil
+}

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"server/internal/cache"
 	"server/internal/model"
 	"server/internal/repository"
 )
@@ -29,7 +30,11 @@ func (s *NoteService) CreateWithImages(ctx context.Context, note *model.Note) er
 }
 
 func (s *NoteService) DeleteByNoteId(ctx context.Context, noteId uint) error {
-	return s.r.DeleteByNoteId(ctx, noteId)
+	if err := s.r.DeleteByNoteId(ctx, noteId); err != nil {
+		return err
+	}
+	cache.DeleteNote(ctx, noteId)
+	return nil
 }
 
 func (s *NoteService) Update(ctx context.Context, note *model.Note) error {
@@ -46,7 +51,11 @@ func (s *NoteService) UpdateWithImages(ctx context.Context, note *model.Note) er
 		return ErrNoPermission
 	}
 
-	return s.r.UpdateWithImages(ctx, note)
+	if err := s.r.UpdateWithImages(ctx, note); err != nil {
+		return err
+	}
+	cache.DeleteNote(ctx, note.ID)
+	return nil
 }
 
 func (s *NoteService) GetByUserId(ctx context.Context, userId uint) ([]model.Note, error) {
@@ -74,7 +83,18 @@ func (s *NoteService) GetLikedNotesByUserIdWithPagination(ctx context.Context, u
 }
 
 func (s *NoteService) GetById(ctx context.Context, noteId uint) (*model.Note, error) {
-	return s.r.GetById(ctx, noteId)
+	// Try cache first
+	if cached, err := cache.GetNote(ctx, noteId); err == nil && cached != nil {
+		return cached, nil
+	}
+	// Cache miss: query DB
+	note, err := s.r.GetById(ctx, noteId)
+	if err != nil {
+		return nil, err
+	}
+	// Store in cache
+	cache.SetNote(ctx, noteId, note)
+	return note, nil
 }
 
 // Pagination 分页信息
@@ -147,4 +167,60 @@ func (s *NoteService) GetNoteList(ctx context.Context, page, pageSize int) (*Not
 			HasMore:  page < int(totalPage),
 		},
 	}, nil
+}
+
+func (s *NoteService) GetNoteListCached(ctx context.Context, page, pageSize int) (*NoteListResp, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+
+	// Try cache first (tab = "recommend" as default for home feed)
+	if cached, err := cache.GetFeed(ctx, "recommend", page); err == nil && cached != nil {
+		return &NoteListResp{
+			List:       cached.List,
+			Pagination: Pagination{
+				Total:    cached.Pagination.Total,
+				Page:     cached.Pagination.Page,
+				PageSize: cached.Pagination.PageSize,
+				HasMore:  cached.Pagination.HasMore,
+			},
+		}, nil
+	}
+
+	// Cache miss: query DB
+	notes, total, err := s.r.GetNoteList(ctx, page, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	totalPage := total / int64(pageSize)
+	if total%int64(pageSize) != 0 {
+		totalPage++
+	}
+
+	result := &NoteListResp{
+		List: notes,
+		Pagination: Pagination{
+			Total:    total,
+			Page:     page,
+			PageSize: pageSize,
+			HasMore:  page < int(totalPage),
+		},
+	}
+
+	// Store in cache
+	cache.SetFeed(ctx, "recommend", page, &cache.CachedNoteList{
+		List: notes,
+		Pagination: cache.Pagination{
+			Total:    total,
+			Page:     page,
+			PageSize: pageSize,
+			HasMore:  page < int(totalPage),
+		},
+	})
+
+	return result, nil
 }

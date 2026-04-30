@@ -6,6 +6,8 @@ import (
 	"server/internal/model"
 	"server/internal/repository"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 var (
@@ -14,59 +16,100 @@ var (
 )
 
 type CommentService struct {
-	r *repository.CommentRepository
+	r   *repository.CommentRepository
+	db  *gorm.DB
 }
 
-func NewCommentService(r *repository.CommentRepository) *CommentService {
-	return &CommentService{r: r}
+func NewCommentService(r *repository.CommentRepository, db *gorm.DB) *CommentService {
+	return &CommentService{r: r, db: db}
 }
 
+// CreateComment 创建评论，使用事务确保评论创建和计数更新原子性
 func (s *CommentService) CreateComment(ctx context.Context, userID, noteID uint, content string, parentID *uint) error {
 	if content == "" {
 		return ErrInvalidContent
 	}
 
-	comment := &model.Comment{
-		Content:  content,
-		NoteID:   noteID,
-		UserID:   userID,
-		ParentID: parentID,
+	if s.db == nil {
+		return errors.New("database not initialized")
 	}
 
-	if parentID != nil && *parentID > 0 {
-		if err := s.r.UpdateReplyCount(ctx, *parentID, 1); err != nil {
-			return err
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		comment := &model.Comment{
+			Content:  content,
+			NoteID:   noteID,
+			UserID:   userID,
+			ParentID: parentID,
 		}
-	} else {
-		if err := s.r.UpdateNoteCommentCount(ctx, noteID, 1); err != nil {
-			return err
-		}
-	}
 
-	return s.r.Create(ctx, comment)
+		// 先创建评论
+		if parentID != nil && *parentID > 0 {
+			// 创建回复：需要在事务内执行创建，并更新父评论的回复数
+			if err := tx.Create(comment).Error; err != nil {
+				return err
+			}
+			// 更新父评论的回复数
+			if err := tx.Model(&model.Comment{}).Where("id = ?", *parentID).
+				UpdateColumn("reply_count", gorm.Expr("reply_count + ?", 1)).Error; err != nil {
+				return err
+			}
+		} else {
+			// 创建顶级评论：使用原生 SQL 插入 NULL 而非 0
+			if err := tx.Exec("INSERT INTO comments (content, note_id, user_id, parent_id, like_count, reply_count, created_at, updated_at) VALUES (?, ?, ?, NULL, ?, ?, NOW(), NOW())",
+				content, noteID, userID, 0, 0).Error; err != nil {
+				return err
+			}
+			// 更新笔记的评论数
+			if err := tx.Model(&model.Note{}).Where("id = ?", noteID).
+				UpdateColumn("comment_count", gorm.Expr("comment_count + ?", 1)).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
+// DeleteComment 删除评论，使用事务确保评论删除和计数更新原子性
 func (s *CommentService) DeleteComment(ctx context.Context, userID, commentID uint) error {
-	comment, err := s.r.GetByID(ctx, commentID)
-	if err != nil {
-		return ErrCommentNotFound
+	if s.db == nil {
+		return errors.New("database not initialized")
 	}
 
-	if comment.UserID != userID {
-		return ErrNoPermission
-	}
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// 先查询评论（使用 FOR UPDATE 防止并发问题）
+		var comment model.Comment
+		if err := tx.Set("gorm:query_option", "FOR UPDATE").
+			First(&comment, commentID).Error; err != nil {
+			return ErrCommentNotFound
+		}
 
-	if err := s.r.Delete(ctx, commentID); err != nil {
-		return err
-	}
+		if comment.UserID != userID {
+			return ErrNoPermission
+		}
 
-	if comment.ParentID != nil && *comment.ParentID > 0 {
-		_ = s.r.UpdateReplyCount(ctx, *comment.ParentID, -1)
-	} else {
-		_ = s.r.UpdateNoteCommentCount(ctx, comment.NoteID, -1)
-	}
+		// 删除评论
+		if err := tx.Delete(&model.Comment{}, commentID).Error; err != nil {
+			return err
+		}
 
-	return nil
+		// 更新计数
+		if comment.ParentID != nil && *comment.ParentID > 0 {
+			// 回复评论：减少父评论的回复数
+			if err := tx.Model(&model.Comment{}).Where("id = ?", *comment.ParentID).
+				UpdateColumn("reply_count", gorm.Expr("GREATEST(reply_count - 1, 0)")).Error; err != nil {
+				return err
+			}
+		} else {
+			// 顶级评论：减少笔记的评论数
+			if err := tx.Model(&model.Note{}).Where("id = ?", comment.NoteID).
+				UpdateColumn("comment_count", gorm.Expr("GREATEST(comment_count - 1, 0)")).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
 // CommentItem 评论列表项（一级评论）
@@ -133,19 +176,18 @@ func (s *CommentService) GetComments(ctx context.Context, noteID uint, page, pag
 
 	likedSet := make(map[uint]bool)
 	if currentUserID > 0 && len(parentIDs) > 0 {
+		allCommentIDs := make([]uint, 0, len(comments))
 		for _, c := range comments {
-			isLiked, _ := s.r.IsLikedByUser(ctx, currentUserID, c.ID)
-			if isLiked {
-				likedSet[c.ID] = true
-			}
+			allCommentIDs = append(allCommentIDs, c.ID)
 		}
 		for _, replies := range repliesMap {
 			for _, r := range replies {
-				isLiked, _ := s.r.IsLikedByUser(ctx, currentUserID, r.ID)
-				if isLiked {
-					likedSet[r.ID] = true
-				}
+				allCommentIDs = append(allCommentIDs, r.ID)
 			}
+		}
+		batchLiked, _ := s.r.BatchIsLikedByUser(ctx, currentUserID, allCommentIDs)
+		for id, v := range batchLiked {
+			likedSet[id] = v
 		}
 	}
 

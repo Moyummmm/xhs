@@ -19,7 +19,7 @@ var commentService *service.CommentService
 
 func init() {
 	commentRepo := repository.NewCommentRepository(config.DB())
-	commentService = service.NewCommentService(commentRepo)
+	commentService = service.NewCommentService(commentRepo, config.DB())
 }
 
 func extractOptionalUserID(c *gin.Context) uint {
